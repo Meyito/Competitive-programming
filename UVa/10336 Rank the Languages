@@ -1,0 +1,74 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+#define sc( x ) scanf( "%d" , &x )
+#define FOR( i , n ) for( int i = 0 ; i < n ; ++i )
+#define clr( t , val ) memset( t , val , sizeof( t ) )
+
+#define pb push_back
+#define all( v ) v.begin() , v.end()
+#define SZ( v ) ((int)v.size())
+
+#define mp make_pair
+#define fi first
+#define se second
+
+#define MOD 1000000007
+
+int h , w ;
+int dx[] = {1,-1,0,0} ;
+int dy[] = {0,0,1,-1} ;
+int cont [ 30 ] ;
+char a[ 30 ][ 30 ] ;
+bool vis[ 30 ][ 30 ] ;
+
+bool cmp ( pair<char,int> p1, pair<char,int> p2 )
+{
+    if ( p1.second == p2.second ) return ( p1.first < p2.first ) ;
+    return ( p1.second > p2.second ) ;
+}
+
+void dfs ( int x , int y, char c )
+{
+    if ( x < 0 || y < 0 || x == h || y == w || vis[ x ][ y ] || a[ x ][ y ] != c ) return ;
+    vis[ x ][ y ] = true ;
+    for ( int i = 0 ; i < 4 ; i++ ) dfs ( x + dx[ i ] , y + dy[ i ] , c ) ;
+}
+
+int main ()
+{
+    int T ; cin >> T ;
+    for ( int it = 1 ; it <= T ; it++)
+    {
+        cin >> h >> w ;
+        for ( int i = 0 ; i < h ; i++ )
+        {
+            for ( int j = 0 ; j < w ; j++ )
+            {
+                cin >> a[ i ][ j ] ;
+            }
+        }
+
+        memset( vis, 0 , sizeof(vis) );
+        memset( cont, 0 , sizeof(cont) );
+
+        for ( int i = 0 ; i < h ; i++ )
+        {
+            for ( int j = 0 ; j < w ; j++ )
+            {
+                if ( !vis[ i ][ j ] )
+                {
+                    dfs ( i , j , a[ i ][ j ] ) ;
+                    cont[ a[ i ][ j ] - 'a']++;
+                }
+            }
+        }
+        printf("World #%d\n", it );
+        vector< pair<char,int> > v ;
+        for ( int i = 0 ; i < 30 ; i++ ) if ( cont[ i ] > 0 ) v.push_back( make_pair ( (char)( i + 'a' ), cont[ i ] ) ) ;
+        sort ( v.begin() , v.end() , cmp ) ;
+        for ( int i = 0 ; i < v.size() ; i++ ) printf("%c: %d\n",v[i].first,v[i].second) ;
+
+    }
+    return 0;
+}
