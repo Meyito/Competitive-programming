@@ -1,0 +1,58 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+bitset<1000010> bs ;
+vector<int> primes ;
+
+void sieve ( long long MAX )
+{
+    bs.reset() ; bs.flip() ; bs[ 0 ] = bs[ 1 ] = false ;
+    for ( long long i = 2 ; i < MAX + 1 ; i++ )
+    {
+        if ( bs[ i ] )
+        {
+            for ( long long j = i*i ; j < MAX + 1 ; j += i ) bs[ j ] = false ;
+            primes.push_back ( i ) ;
+        }
+    }
+}
+
+bool isPrime ( int N )
+{
+    if ( N < 1000000 ) return bs[ N ] ;
+    for ( int i = 0 ; primes[ i ]*primes[ i ] <= N ; i++ ) if ( N % primes[ i ] == 0 ) return false ;
+    return true ;
+}
+
+int main()
+{
+    sieve( 1000000 );
+    int N ;
+    while ( cin >> N )
+    {
+       if ( N < 4 ) printf("%d is not the sum of two primes!\n",N);
+       else if ( N % 2 == 1 )
+       {
+           if( isPrime( N - 2 ) ) printf("%d is the sum of %d and %d.\n",N,2,N-2);
+           else printf("%d is not the sum of two primes!\n",N);
+       }
+       else
+       {
+           int m = 0 ;
+           bool flag = false ;
+           for ( int i = N/2 ; i < N ; i++ )
+           {
+               if ( isPrime( N/2 - m ) && isPrime( i ) && ( N/2 - m ) != i )
+               {
+                   printf("%d is the sum of %d and %d.\n",N,N-i,i);
+                   flag = true ;
+                   break;
+               }
+               m++;
+           }
+
+           if ( !flag ) printf("%d is not the sum of two primes!\n",N);
+       }
+    }
+    return 0;
+}
