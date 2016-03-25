@@ -1,0 +1,159 @@
+#include <bits/stdc++.h>
+#define Node pair<int,int>
+
+using namespace std;
+
+int n,c;
+vector<int> cities[510]; //n
+vector<Node> conf[110]; //c
+int cantVisitados, ticks, confVacias;
+vector<int> impares;
+int degree[110];
+int visitados[110];
+bool bridges[510];
+
+int low[110], d[110];
+
+void init(){
+	int i;
+	impares.clear();
+	confVacias=0;
+	for(i=0; i<n; i++){
+		cities[i].clear();
+		bridges[i]=false;
+	}
+}
+
+void dfs(int u, int idAnt){
+	// cout<<u<<endl;
+  visitados[u] = true;
+  cantVisitados++;
+  d[u] = low[u] = ticks++;
+  int sig, id;
+  
+  if(degree[u]%2!=0){
+  	impares.push_back(u);
+  }
+  
+  for (int i=0; i<conf[u].size(); ++i){
+  	sig=conf[u][i].first;
+  	id=conf[u][i].second;
+  	
+    if (id != idAnt){
+      if (visitados[sig]==0){
+      	
+        dfs(sig, id);
+     
+        if (d[u] < low[sig]){
+          bridges[id] = true;
+        }
+        
+        low[u] = min(low[u], low[sig]);
+        
+      }else{
+        low[u] = min(low[u], d[sig]);
+      }
+    }
+  }
+  
+}
+
+int resolve(){
+	int i, menor, u, j, m;
+	
+	cantVisitados=ticks=0;
+	for(i=0; i<c; i++){
+		if(degree[i]>0){
+			dfs(i, -1);
+			break;
+		}
+	}
+	
+	// cout<<cantVisitados<<" "<<c-confVacias<< "  :c "<<endl;
+	if(cantVisitados!=(c-confVacias))	return -1;
+	
+	// cout<<impares.size()<<" :|"<<endl;
+	if(impares.size()!=0 && impares.size()!=2)	return -1;
+	
+	if(impares.size()==0)	return 0;
+	
+	menor=555;
+	vector<int> opc;
+	
+	for(i=0; i<2; i++){
+		u=impares[i];
+		opc.clear();
+		for(j=0; j<conf[u].size(); j++){
+			opc.push_back(conf[u][j].second);
+		}
+		
+		sort(opc.begin(), opc.end());
+		m=opc[0];
+		if(bridges[m]){
+			for(j=1; j<opc.size(); j++){
+				if(!bridges[opc[j]]){
+					m=opc[j];
+					break;
+				}
+			}
+		}
+		
+		menor=min(menor, m);
+	}
+	
+	return menor;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false); cin.tie(NULL);
+	int i, j, x, y, menor;
+	vector<int> e;
+	cin>>n>>c;
+	
+	while(n!=0 && c!=0){
+		init();
+		confVacias=0;
+		
+		//Leyendo las confederaciones
+		for(i=0; i<c; i++){
+			degree[i]=0;
+			visitados[i]=0;
+			conf[i].clear();
+			
+			cin>>j;
+			if(j==0){
+				confVacias++;
+			}
+			
+			while(j>0){
+				cin>>x;
+				cities[x].push_back(i);
+				j--;
+			}
+		}
+		
+		//construir grafo
+		for(i=0; i<n; i++){
+			x=cities[i][0];
+			if(cities[i].size()==1){
+				y=x;
+			}else{
+				y=cities[i][1];
+			}
+			conf[x].push_back(Node(y, i));
+			
+			if(x!=y){
+				conf[y].push_back(Node(x, i));	
+			}
+			
+			degree[x]++;
+			degree[y]++;
+		}
+		
+		cout<<resolve()<<endl;
+	    
+		cin>>n>>c;
+	}
+	
+	return 0;
+}
